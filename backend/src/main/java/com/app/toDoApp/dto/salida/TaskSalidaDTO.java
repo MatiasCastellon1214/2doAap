@@ -21,6 +21,8 @@ public class TaskSalidaDTO {
 
     private String description;
 
+    private boolean completed;
+
     private LocalDate createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

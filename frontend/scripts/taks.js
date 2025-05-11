@@ -1,162 +1,222 @@
-if (!localStorage.jwt || !localStorage.userId) {
-  console.log('Token o ID faltante');
+if (!localStorage.jwt) {
   location.replace("./index.html");
 }
 
 window.addEventListener('load', function () {
-  const url = "http://localhost:3000";
-  const urlTareas = `${url}/tasks`;
-  const token = JSON.parse(localStorage.jwt); // Línea 9: token para autorización
-  const userId = localStorage.userId; // Obtener userId de localStorage
+  const apiUrl = "http://localhost:8081";
+  const tasksEndpoint = `${apiUrl}/tasks`;
+  const token = localStorage.jwt;
+  const userData = JSON.parse(localStorage.getItem("userData"));
   const userName = document.querySelector(".user-info p");
 
+  // Show user name
+  if (userData?.firstName) {
+    userName.textContent = userData.firstName;
+  }
+
+  // DOM elements
   const btnCerrarSesion = document.querySelector("#closeApp");
   const formCrearTarea = document.querySelector(".nueva-tarea");
   const nuevaTarea = document.querySelector("#nuevaTarea");
 
-  obtenerNombreUsuario();
-  consultarTareas();
+  // Load initial tasks
+  loadTasks();
 
-  // Cerrar sesión
-  btnCerrarSesion.addEventListener('click', function () {
-    if (confirm("¿Desea cerrar sesión?")) {
-      localStorage.clear();
-      location.replace("./index.html");
-    }
-  });
+  // Event listeners
+  btnCerrarSesion.addEventListener('click', logout);
+  formCrearTarea.addEventListener('submit', createTask);
 
-  // Obtener nombre del usuario
-  function obtenerNombreUsuario() {
-    fetch(`${url}/users/${userId}`, {
-      headers: { authorization: token }
-    })
-      .then(res => res.json())
-      .then(data => {
-        userName.textContent = data.firstName;
-      })
-      .catch(err => {
-        console.log("Error al obtener usuario", err);
+  // Task upload function
+  async function loadTasks() {
+    try {
+      const response = await fetch(`${tasksEndpoint}/my-tasks`, {
+        headers: { 
+          "Authorization": `Bearer ${token}`
+        }
       });
+      
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response));
+      }
+      
+      const tasks = await response.json();
+      renderTasks(tasks);
+      setupTaskButtons();
+    } catch (error) {
+      showError(error);
+    }
   }
 
-  // Consultar tareas del usuario
-  function consultarTareas() {
-    fetch(`${urlTareas}?userId=${userId}`, {
-      headers: { authorization: token }
-    })
-      .then(res => res.json())
-      .then(tareas => {
-        renderizarTareas(tareas);
-        botonesCambioEstado();
-        botonBorrarTarea();
-      })
-      .catch(err => console.log("Error al consultar tareas", err));
+  // Task creation function
+  async function createTask(e) {
+  e.preventDefault();
+  const description = nuevaTarea.value.trim();
+  
+  if (!description) {
+    showError("The description cannot be empty");
+    return;
   }
 
-  // Crear nueva tarea
-  formCrearTarea.addEventListener('submit', function (e) {
-    e.preventDefault();
-
+  try {
     const payload = {
-      description: nuevaTarea.value.trim(),
-      completed: false,
-      createdAt: new Date().toISOString(),
-      userId: userId
+      description: description,
     };
 
-    fetch(urlTareas, {
+    const response = await fetch(`${tasksEndpoint}/create`, {
       method: "POST",
-      body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
-        authorization: token
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload) // Send the complete object
+    });
+    
+    if (!response.ok) {
+      throw new Error(await getErrorMessage(response));
+    }
+    
+    nuevaTarea.value = "";
+    await loadTasks();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+  // Task status update function
+  async function updateTaskStatus(taskId, completed) {
+    try {
+      const response = await fetch(`${tasksEndpoint}/${taskId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ completed })
+      });
+      
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response));
       }
-    })
-      .then(res => res.json())
-      .then(() => consultarTareas());
+      
+      await loadTasks();
+    } catch (error) {
+      showError(error);
+    }
+  }
 
-    formCrearTarea.reset();
-  });
+  // Task deletion function
+  async function deleteTask(taskId) {
+    if (!confirm("¿Delete this task?")) return;
+    
+    try {
+      const response = await fetch(`${tasksEndpoint}/${taskId}`, {
+        method: "DELETE",
+        headers: { 
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response));
+      }
+      
+      await loadTasks();
+    } catch (error) {
+      showError(error);
+    }
+  }
 
-  // Renderizar tareas
-  function renderizarTareas(tareas) {
-    const tareasPendientes = document.querySelector(".tareas-pendientes");
-    const tareasTerminadas = document.querySelector(".tareas-terminadas");
-    const numeroFinalizadas = document.querySelector("#cantidad-finalizadas");
+  // Función para renderizar tareas
+  function renderTasks(tasks) {
+    const pendingTasksContainer = document.querySelector(".tareas-pendientes");
+    const completedTasksContainer = document.querySelector(".tareas-terminadas");
+    const completedCounter = document.querySelector("#cantidad-finalizadas");
 
-    tareasPendientes.innerHTML = "";
-    tareasTerminadas.innerHTML = "";
+    pendingTasksContainer.innerHTML = "";
+    completedTasksContainer.innerHTML = "";
 
-    let contador = 0;
+    const completedTasks = tasks.filter(task => task.completed);
+    completedCounter.textContent = completedTasks.length;
 
-    tareas.forEach(tarea => {
-      let fecha = new Date(tarea.createdAt);
-      const tareaHTML = tarea.completed
-        ? `
-        <li class="tarea">
-          <div class="hecha"><i class="fa-regular fa-circle-check"></i></div>
-          <div class="descripcion">
-            <p class="nombre">${tarea.description}</p>
-            <div class="cambios-estados">
-              <button class="change incompleta" data-id="${tarea.id}"><i class="fa-solid fa-rotate-left"></i></button>
-              <button class="borrar" data-id="${tarea.id}"><i class="fa-regular fa-trash-can"></i></button>
-            </div>
-          </div>
-        </li>`
-        : `
-        <li class="tarea">
-          <button class="change" data-id="${tarea.id}"><i class="fa-regular fa-circle"></i></button>
-          <div class="descripcion">
-            <p class="nombre">${tarea.description}</p>
-            <p class="timestamp">${fecha.toLocaleDateString()}</p>
-          </div>
-        </li>`;
-
-      if (tarea.completed) {
-        contador++;
-        tareasTerminadas.innerHTML += tareaHTML;
+    tasks.forEach(task => {
+      const taskElement = createTaskElement(task);
+      if (task.completed) {
+        completedTasksContainer.appendChild(taskElement);
       } else {
-        tareasPendientes.innerHTML += tareaHTML;
+        pendingTasksContainer.appendChild(taskElement);
       }
     });
-
-    numeroFinalizadas.textContent = contador;
   }
 
-  // Cambiar estado de tarea
-  function botonesCambioEstado() {
-    const botones = document.querySelectorAll(".change");
-    botones.forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const id = e.currentTarget.dataset.id;
-        const tareaEsCompleta = e.currentTarget.classList.contains("incompleta");
-        const payload = {
-          completed: !tareaEsCompleta
-        };
+  // Function to create task item
+  function createTaskElement(task) {
+    const taskElement = document.createElement("li");
+    taskElement.className = "tarea";
+    taskElement.dataset.id = task.id;
 
-        fetch(`${urlTareas}/${id}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-          headers: {
-            "Content-Type": "application/json",
-            authorization: token
-          }
-        }).then(() => consultarTareas());
+    const date = new Date(task.createdAt);
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+
+    if (task.completed) {
+      taskElement.innerHTML = `
+        <div class="hecha"><i class="fa-regular fa-circle-check"></i></div>
+        <div class="descripcion">
+          <p class="nombre">${task.description}</p>
+          <div class="cambios-estados">
+            <button class="change incompleta"><i class="fa-solid fa-rotate-left"></i></button>
+            <button class="borrar"><i class="fa-regular fa-trash-can"></i></button>
+          </div>
+        </div>
+      `;
+    } else {
+      taskElement.innerHTML = `
+        <button class="change"><i class="fa-regular fa-circle"></i></button>
+        <div class="descripcion">
+          <p class="nombre">${task.description}</p>
+          <p class="timestamp">${date.toLocaleDateString('es-AR')}</p>
+        </div>
+      `;
+    }
+
+    return taskElement;
+  }
+
+  // Configure task buttons
+  function setupTaskButtons() {
+    document.querySelectorAll(".change").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const taskId = this.closest(".tarea").dataset.id;
+        const isCompleted = this.classList.contains("incompleta");
+        updateTaskStatus(taskId, !isCompleted);
+      });
+    });
+
+    document.querySelectorAll(".borrar").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const taskId = this.closest(".tarea").dataset.id;
+        deleteTask(taskId);
       });
     });
   }
 
-  // Eliminar tarea
-  function botonBorrarTarea() {
-    const botones = document.querySelectorAll(".borrar");
-    botones.forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const id = e.currentTarget.dataset.id;
-        fetch(`${urlTareas}/${id}`, {
-          method: "DELETE",
-          headers: { authorization: token }
-        }).then(() => consultarTareas());
-      });
-    });
+  // Logout function
+  function logout() {
+    localStorage.clear();
+    location.replace("./index.html");
+  }
+
+  // Helper functions
+  async function getErrorMessage(response) {
+    try {
+      const error = await response.json();
+      return error.message || 'Error in the application';
+    } catch {
+      return `Error ${response.status}: ${response.statusText}`;
+    }
+  }
+
+  function showError(error) {
+    console.error("Error:", error);
+    alert(error.message || error || "An error occurred");
   }
 });
