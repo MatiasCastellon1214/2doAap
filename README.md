@@ -52,8 +52,8 @@ toDoApp/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-todoapp-repo.git
-cd your-todoapp-repo
+git clone https://github.com/MatiasCastellon1214/2doAap.git
+cd 2doApp
 ```
 ---
 ### 2. Backend Configuration
