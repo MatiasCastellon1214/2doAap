@@ -1,12 +1,12 @@
 window.addEventListener('load', function () {
-    /* ---------------------- obtenemos variables globales ---------------------- */
+    /* ---------------------- We obtain global variables ---------------------- */
     const form = document.forms[0];
     const email = document.querySelector("#inputEmail");
     const password = document.getElementById("inputPassword");
-    const url = "http://localhost:3000";
+    const url = "http://localhost:8081/api/auth/login";
 
     /* -------------------------------------------------------------------------- */
-    /*            FUNCIÓN 1: Escuchamos el submit y preparamos el envío           */
+    /*            FUNCTION 1: We listen to the submit and prepare the shipment.           */
     /* -------------------------------------------------------------------------- */
     form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -23,36 +23,34 @@ window.addEventListener('load', function () {
     });
 
     /* -------------------------------------------------------------------------- */
-    /*                     FUNCIÓN 2: Simular login con JSON Server [GET]         */
+    /*                     FUNCTION 2: Simulate login with JSON Server [GET].         */
     /* -------------------------------------------------------------------------- */
     function realizarLogin(payload) {
-        console.log("Consultando usuario en JSON Server...");
-
-        fetch(`${url}/users?email=${encodeURIComponent(payload.email)}&password=${encodeURIComponent(payload.password)}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error al acceder a /users");
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.length === 0) {
-                    alert("Usuario o contraseña incorrectos");
-                    throw new Error("Credenciales inválidas");
-                }
-
-                const user = data[0];
-
-                // Guardamos "jwt" y userId en localStorage para seguir usando tu app como antes
-                localStorage.setItem("jwt", JSON.stringify(user.jwt || "fake-jwt"));
-                localStorage.setItem("userId", user.id);
-
-                console.log("Login exitoso, redirigiendo...");
-                location.replace("./mis-tareas.html");
-            })
-            .catch(err => {
-                console.error("Error en el login:", err);
-                alert("No se pudo iniciar sesión");
-            });
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error in the credentials");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Save the actual JWT returned by your backend
+            localStorage.setItem("jwt", data.token);
+            localStorage.setItem("userId", data.id); // Only if you return the id in the response
+    
+            console.log("Successful login, redirecting...");
+            location.replace("./mis-tareas.html");
+        })
+        .catch(err => {
+            console.error("Login error:", err);
+            alert("Unable to log in");
+        });
     }
+    
 });

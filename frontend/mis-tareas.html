@@ -5,29 +5,29 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToDo App</title>
+  <title>2-Do App</title>
   <link rel="icon" type="image/x-icon" href="./assets/DH_Logo_Black.png">
   <meta name="description" content="Digital House CTD | Proyecto integrador | FRONTEND II" />
 
-  <!-- ----------------------------- estilos CSS ----------------------------- -->
+  <!-- ----------------------------- CSS styles ----------------------------- -->
   <link rel="stylesheet" href="./css/tasksStyles.css">
 
-  <!-- ------------------- libreria de iconos Fontawesome -------------------- -->
+  <!-- ------------------- Fontawesome icon library -------------------- -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
     integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- logica de la página -->
+  <!-- Page logic -->
   <script src="./scripts/taks.js"></script>
 
 </head>
 
 <body>
 
-  <!-- cabecera con barra de navegación -->
+  <!-- Header with navigation bar -->
   <header class="container">
     <nav>
-      <h1>To-Do App</h1>
+      <h1>2-Do App</h1>
 
       <div class="user-info">
         <p>username</p>
@@ -38,33 +38,33 @@
   </header>
 
   <main class="container">
-    <!-- carga de tareas -->
+    <!-- Task load -->
     <form class="nueva-tarea">
       <input id="nuevaTarea" type="text" placeholder="nueva tarea">
-      <button type="submit"><i class="fa-solid fa-pencil"></i> Crear tarea</button>
+      <button type="submit"><i class="fa-solid fa-pencil"></i> Create task</button>
     </form>
 
 
-    <!-- contenedor vacío para las que pasen a pendientes -->
+    <!-- Empty container for the ones that pass to pending -->
     <ul class="tareas-pendientes">
       <li class="tarea">
         <button class="change" id="01"><i class="fa-regular fa-circle"></i></button>
         <div class="descripcion">
-          <p class="nombre">Mi tarea</p>
-          <p class="timestamp">09-09-2023</p>
+          <p class="nombre">My homework</p>
+          <p class="timestamp">09-05-2025</p>
         </div>
       </li>
     </ul>
 
-    <h2>Tareas finalizadas <span id="cantidad-finalizadas">0</span></h2>
-    <!-- contenedor vacío para las que pasen a terminadas -->
+    <h2>Tasks completed <span id="cantidad-finalizadas">0</span></h2>
+    <!-- Empty container for the ones that will become finished -->
     <ul class="tareas-terminadas">
       <li class="tarea">
         <div class="hecha">
           <i class="fa-regular fa-circle-check"></i>
         </div>
         <div class="descripcion">
-          <p class="nombre"> Otra tarea</p>
+          <p class="nombre"> Another task</p>
           <div class="cambios-estados">
             <button class="change incompleta" id="002"><i class="fa-solid fa-rotate-left"></i></button>
             <button class="borrar" id="002"><i class="fa-regular fa-trash-can"></i></button>

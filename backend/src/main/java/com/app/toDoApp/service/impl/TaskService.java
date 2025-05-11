@@ -192,4 +192,15 @@ public class TaskService implements ITaskService {
         userDTO.setEmail(user.getEmail());
         return userDTO;
     }
+
+    @Override
+    @Transactional
+    public TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException {
+        Task task = taskRepository.findByIdAndUserId(taskId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada"));
+
+        task.setCompleted(completed);
+        Task updatedTask = taskRepository.save(task);
+        return modelMapper.map(updatedTask, TaskSalidaDTO.class);
+    }
 }
