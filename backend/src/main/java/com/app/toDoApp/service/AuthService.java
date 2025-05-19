@@ -2,6 +2,8 @@ package com.app.toDoApp.service;
 
 import com.app.toDoApp.dto.auth.JwtResponse;
 import com.app.toDoApp.dto.auth.LoginRequest;
+import com.app.toDoApp.dto.entrada.UserEntradaDTO;
+import com.app.toDoApp.dto.salida.UserSalidaDTO;
 import com.app.toDoApp.security.UserPrincipal;
 import com.app.toDoApp.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final IUserService userService;
 
 
     public JwtResponse authenticateUser(LoginRequest request) {
@@ -40,4 +43,14 @@ public class AuthService {
                 userPrincipal.getLastName()
         );
     }
+
+    public JwtResponse registerUser(UserEntradaDTO request) {
+        userService.createUser(request);
+        LoginRequest loginRequest = new LoginRequest(request.getEmail(), request.getPassword());
+        return authenticateUser(loginRequest);
+    }
+
+
+
+
 }

@@ -22,6 +22,8 @@ public class Task {
 
     private String description;
 
+    private boolean completed;
+
     private LocalDate createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

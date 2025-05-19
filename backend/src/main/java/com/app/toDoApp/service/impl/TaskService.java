@@ -192,4 +192,36 @@ public class TaskService implements ITaskService {
         userDTO.setEmail(user.getEmail());
         return userDTO;
     }
+
+    @Override
+    @Transactional
+    public TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException {
+        LOGGER.info("Updating task status - Task ID: {}, Completed: {}, User ID: {}", taskId, completed, userId);
+
+        // 1. Buscar la tarea que pertenezca al usuario
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Task with ID {} not found", taskId);
+                    return new ResourceNotFoundException("Task with ID " + taskId + " not found");
+                });
+
+        // 2. Verificar que el usuario es dueño de la tarea
+        if (!task.getUser().getId().equals(userId)) {
+            LOGGER.warn("User ID {} does not own task ID {}, update denied", userId, taskId);
+            throw new ResourceNotFoundException("You do not have permission to update this task");
+        }
+
+        // 3. Actualizar solo el estado completado
+        task.setCompleted(completed);
+
+        // 4. Guardar cambios
+        Task updatedTask = taskRepository.save(task);
+        LOGGER.info("Task status updated successfully for task ID: {}", taskId);
+
+        // 5. Preparar respuesta
+        TaskSalidaDTO response = modelMapper.map(updatedTask, TaskSalidaDTO.class);
+        response.setUser(mapUserToUserSalidaDTO(updatedTask.getUser()));
+
+        return response;
+    }
 }

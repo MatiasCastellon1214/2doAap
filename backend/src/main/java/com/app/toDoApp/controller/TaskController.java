@@ -16,7 +16,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.toDoApp.security.UserPrincipal;
+
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")
@@ -62,7 +65,7 @@ public class TaskController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<TaskSalidaDTO> createnewTask(@RequestBody TaskEntradaDTO taskDTO, Authentication authentication) throws ResourceNotFoundException {
+    public ResponseEntity<TaskSalidaDTO> createnewTask(@Valid @RequestBody TaskEntradaDTO taskDTO, Authentication authentication) throws ResourceNotFoundException {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         taskDTO.setUserId(userPrincipal.getId());  // Solo seteás el ID del usuario
         TaskSalidaDTO newTask = taskService.createTask(taskDTO);
@@ -87,6 +90,20 @@ public class TaskController {
         return new ResponseEntity<>(taskService.updateTask(task, authentication), HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskSalidaDTO> updateTaskStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, Boolean> update,
+            Authentication authentication) throws ResourceNotFoundException {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Boolean completed = update.get("completed");
+
+        if (completed == null) {
+            throw new IllegalArgumentException("El campo 'completed' es requerido");
+        }
+
+        return ResponseEntity.ok(taskService.updateTaskStatus(id, completed, userPrincipal.getId()));
+    }
 
 
 }

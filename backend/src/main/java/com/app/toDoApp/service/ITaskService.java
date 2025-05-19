@@ -24,5 +24,6 @@ public interface ITaskService {
 
     List<TaskSalidaDTO> findTasksByUserId(Long userId);
 
+    TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException;
 
 }
