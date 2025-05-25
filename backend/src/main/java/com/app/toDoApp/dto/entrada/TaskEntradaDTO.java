@@ -13,6 +13,8 @@ public class TaskEntradaDTO {
 
     private String description;
 
+    private Boolean completed = false;
+
     private Long userId;
 
 }

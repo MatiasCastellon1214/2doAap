@@ -15,9 +15,11 @@ public class ModelMapperConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        // Configuración específica para Task
+        // Cambiar de STRICT a LOOSE
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+
+        // Configuración específica para TaskEntradaDTO → Task
         modelMapper.addMappings(new PropertyMap<TaskEntradaDTO, Task>() {
             @Override
             protected void configure() {
@@ -27,12 +29,6 @@ public class ModelMapperConfig {
             }
         });
 
-        modelMapper.addMappings(new PropertyMap<Task, TaskSalidaDTO>() {
-            @Override
-            protected void configure() {
-                map().setUser(null); // Lo manejamos manualmente en el servicio
-            }
-        });
 
         return modelMapper;
     }

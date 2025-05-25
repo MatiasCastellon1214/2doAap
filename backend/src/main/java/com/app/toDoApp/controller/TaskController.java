@@ -2,8 +2,8 @@ package com.app.toDoApp.controller;
 
 import com.app.toDoApp.dto.entrada.TaskEntradaDTO;
 import com.app.toDoApp.dto.modificacion.TaskModificacionEntradaDTO;
+import com.app.toDoApp.dto.patch.TaskStatusUpdateDTO;
 import com.app.toDoApp.dto.salida.TaskSalidaDTO;
-import com.app.toDoApp.entity.User;
 import com.app.toDoApp.exceptions.ResourceNotFoundException;
 import com.app.toDoApp.repository.TaskRepository;
 import com.app.toDoApp.repository.UserRepository;
@@ -12,14 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.toDoApp.security.UserPrincipal;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")
@@ -38,14 +36,11 @@ public class TaskController {
     }
 
     @GetMapping("/searchId")
-    public String searchTaskById(Model model, @RequestParam Long id) throws ResourceNotFoundException {
+    public ResponseEntity<TaskSalidaDTO> searchTaskById(@RequestParam Long id) throws ResourceNotFoundException {
 
         TaskSalidaDTO task = taskService.findTaskById(id);
 
-        model.addAttribute("Description", task.getDescription());
-        model.addAttribute("Created at", task.getCreatedAt());
-
-        return "Task";
+        return ResponseEntity.ok(task);
 
     }
 
@@ -76,7 +71,7 @@ public class TaskController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id, Authentication authentication) throws ResourceNotFoundException {
         taskService.deleteTask(id, authentication);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     //Search user with PathVariable
@@ -86,17 +81,17 @@ public class TaskController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<TaskSalidaDTO> updateTask(@RequestBody TaskModificacionEntradaDTO task, Authentication authentication) throws ResourceNotFoundException {
+    public ResponseEntity<TaskSalidaDTO> updateTask(@Valid @RequestBody TaskModificacionEntradaDTO task, Authentication authentication) throws ResourceNotFoundException {
         return new ResponseEntity<>(taskService.updateTask(task, authentication), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<TaskSalidaDTO> updateTaskStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, Boolean> update,
+            @RequestBody @Valid TaskStatusUpdateDTO statusDTO,
             Authentication authentication) throws ResourceNotFoundException {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Boolean completed = update.get("completed");
+        Boolean completed = statusDTO.getCompleted();
 
         if (completed == null) {
             throw new IllegalArgumentException("El campo 'completed' es requerido");

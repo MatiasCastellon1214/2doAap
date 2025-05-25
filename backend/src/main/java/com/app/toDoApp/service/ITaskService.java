@@ -5,7 +5,7 @@ import com.app.toDoApp.dto.modificacion.TaskModificacionEntradaDTO;
 import com.app.toDoApp.dto.salida.TaskSalidaDTO;
 import com.app.toDoApp.exceptions.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 

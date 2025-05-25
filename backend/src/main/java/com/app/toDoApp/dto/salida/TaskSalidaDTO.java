@@ -21,9 +21,9 @@ public class TaskSalidaDTO {
 
     private String description;
 
-    private LocalDate createdAt;
+    private Boolean completed;
 
-    private boolean completed;
+    private LocalDate createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UserSalidaDTO user;

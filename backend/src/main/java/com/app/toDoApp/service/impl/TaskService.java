@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import com.app.toDoApp.dto.patch.TaskStatusUpdateDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -54,6 +55,10 @@ public class TaskService implements ITaskService {
 
         // 2. Mapping DTO to entity
         Task task = modelMapper.map(taskDTO, Task.class);
+
+        if (task.getCompleted() == null) {
+            task.setCompleted(false);
+        }
 
         // 3. Establishing automatic relationships and values
         task.setUser(user);
@@ -170,6 +175,11 @@ public class TaskService implements ITaskService {
             existingTask.setDescription(taskDTO.getDescription());
         }
 
+        if (taskDTO.getCompleted() != null) {
+            existingTask.setCompleted(taskDTO.getCompleted());
+            LOGGER.info("Updating completed status to: {}", taskDTO.getCompleted());
+        }
+
         // 4. Save changes
         Task updatedTask = taskRepository.save(existingTask);
 
@@ -212,7 +222,13 @@ public class TaskService implements ITaskService {
         }
 
         // 3. Actualizar solo el estado completado
-        task.setCompleted(completed);
+        if (!completed.equals(task.getCompleted())) {
+            task.setCompleted(completed);
+            //task = taskRepository.save(task);
+            LOGGER.info("Estado de tarea {} actualizado a {}", taskId, completed);
+        } else {
+            LOGGER.info("Estado de tarea {} ya está en el valor solicitado ({})", taskId, completed);
+        }
 
         // 4. Guardar cambios
         Task updatedTask = taskRepository.save(task);
