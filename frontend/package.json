@@ -1,0 +1,19 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Frontend para la aplicación ToDoApp",
+  "main": "index.js",
+  "scripts": {
+    "start": "lite-server",
+    "build": "echo 'No build step defined' && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  },
+  "dependencies": {
+    "frontend": "file:"
+  }
+}

@@ -5,7 +5,7 @@ window.addEventListener("load", function () {
   const email = document.querySelector("#inputEmail");
   const password = document.querySelector("#inputPassword");
   const repeatPassword = document.querySelector("#inputPasswordRepetida");
-  const url = "http://localhost:3000";
+  const url = "http://localhost:8081/api/auth";
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -15,11 +15,11 @@ window.addEventListener("load", function () {
 
     if (compararContrasenias(password.value, repeatPassword.value)) {
       if (!nombreValido || !apellidoValido) {
-        alert("Formato de nombre y/o apellido incorrecto");
+        alert("Incorrect first and/or last name formato");
       } else if (!validarEmail(email.value)) {
-        alert("Ingrese una dirección de correo válida");
+        alert("Enter a valid email address");
       } else if (!validarContrasenia(password.value)) {
-        alert("La contraseña debe tener 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial");
+        alert("The password must have 8 characters, one uppercase, one lowercase, one number and one special character.");
       } else {
         const payload = {
           firstName: normalizarTexto(name.value),
@@ -28,43 +28,50 @@ window.addEventListener("load", function () {
           password: password.value
         };
 
-        verificarYRegistrar(payload);
+        registrarUsuario(payload);
         form.reset();
       }
     } else {
-      alert("Las contraseñas no coinciden");
+      alert("Passwords do not match");
     }
   });
 
-  function verificarYRegistrar(payload) {
-    fetch(`${url}/users?email=${encodeURIComponent(payload.email)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          alert("El usuario ya está registrado");
-          throw new Error("Usuario existente");
-        }
-
-        // Agregar un campo fake jwt si querés mantener compatibilidad
-        payload.jwt = "fake-jwt-" + Date.now();
-
-        // Crear el usuario
-        return fetch(`${url}/users`, {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' }
-        });
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Usuario creado:", data);
-        localStorage.setItem("jwt", JSON.stringify(data.jwt));
-        localStorage.setItem("userId", data.id);
-        location.replace('./mis-tareas.html');
-      })
-      .catch(err => {
-        console.error("Error al registrar:", err);
-        alert("Hubo un error al registrarse");
-      });
+  function registrarUsuario(payload) {
+    fetch(`${url}/register`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { 
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw err; });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Registro exitoso:", data);
+      // Save JWT token and user data
+      localStorage.setItem("jwt", data.token);
+      localStorage.setItem("userData", JSON.stringify({
+        id: data.userId,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName
+      }));
+      
+      // Redirect to dashboard or task page
+      window.location.href = './mis-tareas.html';
+    })
+    .catch(error => {
+      console.error("Error in registration:", error);
+      if (error.message && error.message.includes("email")) {
+        mostrarError("The email is already registered");
+      } else {
+        mostrarError(error.message || "There was an error while registering");
+      }
+    });
   }
+
 });
