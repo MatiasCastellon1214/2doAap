@@ -6,6 +6,7 @@ import com.app.toDoApp.dto.salida.TaskSalidaDTO;
 import com.app.toDoApp.exceptions.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 
+
 import java.util.List;
 
 public interface ITaskService {
@@ -16,4 +17,6 @@ public interface ITaskService {
     TaskSalidaDTO updateTask(TaskModificacionEntradaDTO taskDTO, Authentication authentication) throws ResourceNotFoundException;
     List<TaskSalidaDTO> findTasksByUserId(Long userId);
     TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException;
+
 }
+

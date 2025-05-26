@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "TASKS")
+@Table(name = "tasks")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,7 +21,10 @@ public class Task {
     private Long id;
 
     private String description;
-    private boolean completed;
+
+    @Column(nullable = false)
+    private Boolean completed = false;
+
     private LocalDate createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

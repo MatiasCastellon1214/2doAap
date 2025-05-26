@@ -2,10 +2,8 @@ package com.app.toDoApp.service;
 
 import com.app.toDoApp.dto.auth.JwtResponse;
 import com.app.toDoApp.dto.auth.LoginRequest;
-import com.app.toDoApp.dto.auth.RegisterRequest;
-import com.app.toDoApp.entity.User;
-import com.app.toDoApp.exceptions.EmailAlreadyExistsException;
-import com.app.toDoApp.repository.UserRepository;
+import com.app.toDoApp.dto.entrada.UserEntradaDTO;
+import com.app.toDoApp.dto.salida.UserSalidaDTO;
 import com.app.toDoApp.security.UserPrincipal;
 import com.app.toDoApp.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
@@ -27,10 +25,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
-
-
+    private final IUserService userService;
 
     public JwtResponse authenticateUser(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -53,38 +48,13 @@ public class AuthService {
         );
     }
 
-    @Transactional
-    public JwtResponse registerUser(RegisterRequest request) {
-
-        if(userRepository.existsByEmail(request.getEmail())) {
-            logger.warn("Registration attempt with existing email: {}", request.getEmail());
-            throw new EmailAlreadyExistsException("The email is already registered");
-        }
-
-        // Create and save user
-        User user = new User();
-
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Encrypt the password
-
-        User savedUser = userRepository.save(user);
-        logger.info("New user registered with email: {}", savedUser.getEmail());
-
-        // Create UserPrincial to generate token
-        UserPrincipal userPrincipal = UserPrincipal.create(savedUser);
-
-        // Generate the kwt
-        String jwt = tokenProvider.generateToken(userPrincipal);
-        return new JwtResponse(
-                jwt,
-                userPrincipal.getId(),
-                userPrincipal.getEmail(),
-                userPrincipal.getFirstName(),
-                userPrincipal.getLastName()
-        );
+    public JwtResponse registerUser(UserEntradaDTO request) {
+        userService.createUser(request);
+        LoginRequest loginRequest = new LoginRequest(request.getEmail(), request.getPassword());
+        return authenticateUser(loginRequest);
     }
+
+
+
+
 }
-
-

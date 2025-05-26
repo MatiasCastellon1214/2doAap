@@ -21,7 +21,7 @@ public class TaskSalidaDTO {
 
     private String description;
 
-    private boolean completed;
+    private Boolean completed;
 
     private LocalDate createdAt;
 

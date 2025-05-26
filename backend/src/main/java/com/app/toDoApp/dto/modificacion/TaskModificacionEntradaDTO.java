@@ -20,8 +20,7 @@ public class TaskModificacionEntradaDTO {
 
     private String description;
 
-    private boolean completed;
+    private Boolean completed;
 
-    private Long userId;
+    //private Long userId;
 
-}

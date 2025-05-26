@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import com.app.toDoApp.dto.patch.TaskStatusUpdateDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -54,6 +55,10 @@ public class TaskService implements ITaskService {
 
         // 2. Mapping DTO to entity
         Task task = modelMapper.map(taskDTO, Task.class);
+
+        if (task.getCompleted() == null) {
+            task.setCompleted(false);
+        }
 
         // 3. Establishing automatic relationships and values
         task.setUser(user);
@@ -170,6 +175,11 @@ public class TaskService implements ITaskService {
             existingTask.setDescription(taskDTO.getDescription());
         }
 
+        if (taskDTO.getCompleted() != null) {
+            existingTask.setCompleted(taskDTO.getCompleted());
+            LOGGER.info("Updating completed status to: {}", taskDTO.getCompleted());
+        }
+
         // 4. Save changes
         Task updatedTask = taskRepository.save(existingTask);
 
@@ -196,11 +206,38 @@ public class TaskService implements ITaskService {
     @Override
     @Transactional
     public TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException {
-        Task task = taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada"));
+        LOGGER.info("Updating task status - Task ID: {}, Completed: {}, User ID: {}", taskId, completed, userId);
 
-        task.setCompleted(completed);
+        // 1. Buscar la tarea que pertenezca al usuario
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Task with ID {} not found", taskId);
+                    return new ResourceNotFoundException("Task with ID " + taskId + " not found");
+                });
+
+        // 2. Verificar que el usuario es dueño de la tarea
+        if (!task.getUser().getId().equals(userId)) {
+            LOGGER.warn("User ID {} does not own task ID {}, update denied", userId, taskId);
+            throw new ResourceNotFoundException("You do not have permission to update this task");
+        }
+
+        // 3. Actualizar solo el estado completado
+        if (!completed.equals(task.getCompleted())) {
+            task.setCompleted(completed);
+            //task = taskRepository.save(task);
+            LOGGER.info("Estado de tarea {} actualizado a {}", taskId, completed);
+        } else {
+            LOGGER.info("Estado de tarea {} ya está en el valor solicitado ({})", taskId, completed);
+        }
+
+        // 4. Guardar cambios
         Task updatedTask = taskRepository.save(task);
-        return modelMapper.map(updatedTask, TaskSalidaDTO.class);
+        LOGGER.info("Task status updated successfully for task ID: {}", taskId);
+
+        // 5. Preparar respuesta
+        TaskSalidaDTO response = modelMapper.map(updatedTask, TaskSalidaDTO.class);
+        response.setUser(mapUserToUserSalidaDTO(updatedTask.getUser()));
+
+        return response;
     }
 }

@@ -2,10 +2,12 @@ package com.app.toDoApp.controller;
 
 import com.app.toDoApp.dto.auth.JwtResponse;
 import com.app.toDoApp.dto.auth.LoginRequest;
-import com.app.toDoApp.dto.auth.RegisterRequest;
+import com.app.toDoApp.dto.entrada.UserEntradaDTO;
+import com.app.toDoApp.dto.salida.UserSalidaDTO;
 import com.app.toDoApp.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,8 +28,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticateUser(request));
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.registerUser(request));
+
+    @PostMapping("/register")
+    public ResponseEntity<JwtResponse> registerUser(@Valid @RequestBody UserEntradaDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(request));
     }
+
 }
