@@ -18,4 +18,6 @@ public interface IUserService {
 
     UserSalidaDTO updateUser(UserModificacionEntradaDTO user);
 
+    boolean existsByEmail(String email);
+
 }

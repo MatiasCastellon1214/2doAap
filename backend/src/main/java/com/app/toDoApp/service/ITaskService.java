@@ -10,20 +10,13 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 public interface ITaskService {
-
-    TaskSalidaDTO createTask(TaskEntradaDTO task) throws ResourceNotFoundException;
-
-
+    TaskSalidaDTO createTask(TaskEntradaDTO taskDTO) throws ResourceNotFoundException;
     List<TaskSalidaDTO> listTasks();
-
     TaskSalidaDTO findTaskById(Long id) throws ResourceNotFoundException;
-
     void deleteTask(Long taskId, Authentication authentication) throws ResourceNotFoundException;
-
     TaskSalidaDTO updateTask(TaskModificacionEntradaDTO taskDTO, Authentication authentication) throws ResourceNotFoundException;
-
     List<TaskSalidaDTO> findTasksByUserId(Long userId);
-
     TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException;
 
 }
+

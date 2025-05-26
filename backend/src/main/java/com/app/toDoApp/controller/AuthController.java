@@ -7,6 +7,7 @@ import com.app.toDoApp.dto.salida.UserSalidaDTO;
 import com.app.toDoApp.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,10 +28,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticateUser(request));
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> registerUser(@Valid @RequestBody UserEntradaDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(request));
     }
-
 
 }
