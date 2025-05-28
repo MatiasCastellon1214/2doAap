@@ -96,19 +96,8 @@ public class UserService implements IUserService {
         return userSalidaDTO;
     }
 
-    @Override
-    public boolean existsByEmail(String email) {
-        boolean exists = userRepository.existsByEmail(email);
-        LOGGER.info("Checking if email exists: {} - Result: {}", email, exists);
-        return exists;
-    }
-
     private void configureMapping(){
-        modelMapper.typeMap(UserEntradaDTO.class, User.class)
-                .addMappings(mapper -> {
-                    mapper.skip(User::setId);
-                    mapper.skip(User::setTasks);
-                });
+        modelMapper.typeMap(UserEntradaDTO.class, User.class);
 
         modelMapper.typeMap(User.class, UserSalidaDTO.class);
 

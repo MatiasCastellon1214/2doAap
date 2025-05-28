@@ -1,4 +1,4 @@
-/* ---------------------------------- text --------------------------------- */
+/* ---------------------------------- texto --------------------------------- */
 function validarTexto(texto) {
     let solosLetras = /^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s-]+$/;
     return texto.length >= 3 && solosLetras.test(texto);

@@ -18,7 +18,6 @@ import com.app.toDoApp.security.UserPrincipal;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")

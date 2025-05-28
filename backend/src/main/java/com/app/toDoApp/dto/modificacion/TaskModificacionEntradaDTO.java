@@ -24,3 +24,4 @@ public class TaskModificacionEntradaDTO {
 
     //private Long userId;
 
+}

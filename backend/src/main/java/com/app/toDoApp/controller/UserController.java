@@ -7,14 +7,12 @@ import com.app.toDoApp.dto.salida.UserSalidaDTO;
 import com.app.toDoApp.entity.User;
 import com.app.toDoApp.exceptions.ResourceNotFoundException;
 import com.app.toDoApp.repository.UserRepository;
-import com.app.toDoApp.security.UserPrincipal;
 import com.app.toDoApp.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,13 +79,5 @@ public class UserController {
 
         return ResponseEntity.ok(tasks);
     }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserSalidaDTO> getCurrentUser(Authentication authentication) throws ResourceNotFoundException {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserSalidaDTO usuario = userService.findUserById(userPrincipal.getId());
-        return new ResponseEntity<>(usuario, HttpStatus.OK);
-    }
-
 
 }
