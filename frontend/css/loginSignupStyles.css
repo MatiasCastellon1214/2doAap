@@ -43,6 +43,7 @@ form {
     max-width: 24rem;
     margin: 0 auto;
     padding: 2rem 3rem;
+    border: 1px white solid;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
