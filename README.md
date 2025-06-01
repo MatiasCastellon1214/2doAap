@@ -1,4 +1,4 @@
-# ✅ ToDoApp - Full Stack Version
+# ✅ 2DoApp - Full Stack Version
 
 This project is a full-stack version of the original [ToDoApp frontend project](https://github.com/MatiasCastellon1214/toDoAap.git), originally developed as a final assignment for the **Frontend II** course in the Certified Tech Developer program.
 
