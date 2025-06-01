@@ -36,7 +36,7 @@ public class User {
     @JsonManagedReference
     private List<Task> tasks = new ArrayList<>();
 
-    // Método helper para mantener consistencia en ambas direcciones
+    // Helper method to maintain consistency in both directions
     public void addTask(Task task){
         tasks.add(task);
         task.setUser(this);

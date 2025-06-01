@@ -9,22 +9,22 @@
   <link rel="icon" type="image/x-icon" href="./assets/DH_Logo_Black.png">
   <meta name="description" content="Digital House CTD | Proyecto integrador | FRONTEND II" />
 
-  <!-- ----------------------------- estilos CSS ----------------------------- -->
+  <!-- ----------------------------- CSS styles ----------------------------- -->
   <link rel="stylesheet" href="./css/tasksStyles.css">
 
-  <!-- ------------------- libreria de iconos Fontawesome -------------------- -->
+  <!-- ------------------- Fontawesome icon library -------------------- -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
     integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- logica de la página -->
+  <!-- page logic -->
   <script src="./scripts/taks.js"></script>
 
 </head>
 
 <body>
 
-  <!-- cabecera con barra de navegación -->
+  <!-- header with navigation bar -->
   <header class="container">
     <nav>
       <h1>2-Do App</h1>
@@ -38,14 +38,14 @@
   </header>
 
   <main class="container">
-    <!-- carga de tareas -->
+    <!-- task load -->
     <form class="nueva-tarea">
       <input id="nuevaTarea" type="text" placeholder="nueva tarea">
       <button type="submit"><i class="fa-solid fa-pencil"></i> Create Task</button>
     </form>
 
 
-    <!-- contenedor vacío para las que pasen a pendientes -->
+    <!-- empty container for those that become pending -->
     <ul class="tareas-pendientes">
       <li class="tarea">
         <button class="change" id="01"><i class="fa-regular fa-circle"></i></button>
@@ -57,7 +57,7 @@
     </ul>
 
     <h2>Tasks completed <span id="cantidad-finalizadas">0</span></h2>
-    <!-- contenedor vacío para las que pasen a terminadas -->
+    <!-- empty container for those that are finished -->
     <ul class="tareas-terminadas">
       <li class="tarea">
         <div class="hecha">

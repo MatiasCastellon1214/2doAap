@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     Optional<Task> findByIdAndUserId(Long id, Long userId);
 
-    // Nueva consulta para buscar por ID y estado completado
+    // New query to search by ID and completed status
     @Query("SELECT t FROM Task t WHERE t.id = :id AND t.completed = :completed")
     Optional<Task> findByIdAndCompleted(@Param("id") Long id, @Param("completed") boolean completed);
 

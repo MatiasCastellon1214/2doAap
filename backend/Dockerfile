@@ -1,21 +1,21 @@
-# Usa una imagen de Java como base
+# Use a Java image as a base
 FROM maven:3.8.7-eclipse-temurin-17-alpine
 
-# Crea un directorio para la app
+# Create a directory for the app
 WORKDIR /app
 
-# Copia el JAR compilado (primero copia el POM para mejor caching)
+#  Copy the compiled JAR (first copy the POM for better caching)
 COPY pom.xml .
 COPY src ./src
 
-# Construye la aplicación
+# Build the application
 RUN mvn clean package -DskipTests
 
-# Copia solo el JAR resultante
+# Copy only the resulting JAR
 COPY target/*.jar app.jar
 
-# Expone el puerto
+# Expose the port
 EXPOSE ${SERVER_PORT}
 
-# Comando para ejecutar la app
+# Command to run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
