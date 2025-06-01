@@ -157,7 +157,7 @@ public class TaskService implements ITaskService {
 
         LOGGER.info("Updating task with data: {}", JsonPrinter.toString(taskDTO));
 
-        // 1. Verificar que la tarea existe
+        // 1. Verify that the task exists
         Task existingTask = taskRepository.findById(taskDTO.getId())
                 .orElseThrow(() -> {
                     LOGGER.warn("Task with ID {} not found", taskDTO.getId());
@@ -192,7 +192,7 @@ public class TaskService implements ITaskService {
     }
 
 
-    // Método auxiliar para mapear User a UserSalidaDTO
+    // Auxiliary method for mapping User to UserSalidaDTO
     private UserSalidaDTO mapUserToUserSalidaDTO(User user) {
         if (user == null) return null;
         UserSalidaDTO userDTO = new UserSalidaDTO();
@@ -208,20 +208,20 @@ public class TaskService implements ITaskService {
     public TaskSalidaDTO updateTaskStatus(Long taskId, Boolean completed, Long userId) throws ResourceNotFoundException {
         LOGGER.info("Updating task status - Task ID: {}, Completed: {}, User ID: {}", taskId, completed, userId);
 
-        // 1. Buscar la tarea que pertenezca al usuario
+        // 1. Search for the task belonging to the user
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Task with ID {} not found", taskId);
                     return new ResourceNotFoundException("Task with ID " + taskId + " not found");
                 });
 
-        // 2. Verificar que el usuario es dueño de la tarea
+        // 2. Verify that the user is the owner of the task
         if (!task.getUser().getId().equals(userId)) {
             LOGGER.warn("User ID {} does not own task ID {}, update denied", userId, taskId);
             throw new ResourceNotFoundException("You do not have permission to update this task");
         }
 
-        // 3. Actualizar solo el estado completado
+        // 3. Update only the completed status
         if (!completed.equals(task.getCompleted())) {
             task.setCompleted(completed);
             //task = taskRepository.save(task);
@@ -230,11 +230,11 @@ public class TaskService implements ITaskService {
             LOGGER.info("Estado de tarea {} ya está en el valor solicitado ({})", taskId, completed);
         }
 
-        // 4. Guardar cambios
+        // 4. Save changes
         Task updatedTask = taskRepository.save(task);
         LOGGER.info("Task status updated successfully for task ID: {}", taskId);
 
-        // 5. Preparar respuesta
+        // 5. Prepare response
         TaskSalidaDTO response = modelMapper.map(updatedTask, TaskSalidaDTO.class);
         response.setUser(mapUserToUserSalidaDTO(updatedTask.getUser()));
 
